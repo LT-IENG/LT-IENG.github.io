@@ -115,6 +115,7 @@ a.link-underline:hover::after {
   margin: 0 auto;
   font-size: 1.05rem;
   line-height: 1.85;
+  overflow-wrap: break-word;
 }
 .prose h1, .prose h2, .prose h3 {
   font-family: var(--font-serif);
