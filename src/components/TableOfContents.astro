@@ -1,0 +1,202 @@
+---
+const { headings = [] } = Astro.props;
+const toc = headings.filter(
+  (h: { depth: number; text: string; slug: string }) => h.depth >= 2 && h.depth <= 3,
+);
+---
+
+{toc.length > 0 && (
+  <>
+    <!-- Desktop: sticky sidebar -->
+    <nav class="toc" id="tocDesktop">
+      <h4 class="toc-title">目录</h4>
+      <ul class="toc-list">
+        {toc.map((h: { depth: number; text: string; slug: string }) => (
+          <li>
+            <a href={`#${h.slug}`} class={`toc-link toc-lvl-${h.depth}`} data-toc={h.slug}>
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Mobile: floating button + overlay -->
+    <button class="toc-fab" id="tocFab" aria-label="目录">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6h16"/><path d="M4 12h10"/><path d="M4 18h7"/>
+      </svg>
+    </button>
+    <div class="toc-overlay" id="tocOverlay" aria-hidden="true">
+      <div class="toc-overlay-bg" id="tocOverlayBg"></div>
+      <div class="toc-overlay-box">
+        <h4 class="toc-title">目录</h4>
+        <ul class="toc-list">
+          {toc.map((h: { depth: number; text: string; slug: string }) => (
+            <li>
+              <a href={`#${h.slug}`} class={`toc-link toc-lvl-${h.depth}`} data-toc={h.slug}>
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </>
+)}
+
+<script>
+  // Active heading tracking
+  const tocLinks = document.querySelectorAll('[data-toc]');
+  if (tocLinks.length > 0) {
+    const headingIds = Array.from(tocLinks).map(a => a.getAttribute('data-toc')!);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          const slug = entry.target.id;
+          const link = document.querySelector(`[data-toc="${slug}"]`);
+          if (link) {
+            if (entry.isIntersecting) {
+              link.classList.add('toc-active');
+            } else {
+              link.classList.remove('toc-active');
+            }
+          }
+        });
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+    headingIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  }
+
+  // Mobile TOC
+  const fab = document.getElementById('tocFab');
+  const overlay = document.getElementById('tocOverlay');
+  const overlayBg = document.getElementById('tocOverlayBg');
+  function openToc() {
+    overlay?.setAttribute('aria-hidden', 'false');
+    overlay?.classList.add('on');
+  }
+  function closeToc() {
+    overlay?.setAttribute('aria-hidden', 'true');
+    overlay?.classList.remove('on');
+  }
+  fab?.addEventListener('click', openToc);
+  overlayBg?.addEventListener('click', closeToc);
+  overlay?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeToc));
+</script>
+
+<style>
+  /* Desktop TOC */
+  .toc {
+    position: sticky;
+    top: 5rem;
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(0,0,0,0.06);
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+  }
+  .toc-title {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+    color: var(--color-ink);
+  }
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .toc-link {
+    display: block;
+    padding: 0.35rem 0.75rem;
+    margin-left: -0.75rem;
+    border-left: 2px solid transparent;
+    font-size: 0.8rem;
+    color: var(--color-ink-light);
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+    border-radius: 0 4px 4px 0;
+  }
+  .toc-link:hover {
+    color: var(--color-ink);
+    border-left-color: var(--color-gold-light);
+  }
+  .toc-link.toc-active {
+    color: var(--color-ink);
+    border-left-color: var(--color-gold);
+    font-weight: 500;
+  }
+  .toc-lvl-3 {
+    padding-left: 1.75rem;
+    font-size: 0.75rem;
+  }
+  .toc-lvl-3.toc-active {
+    margin-left: -0.75rem;
+    padding-left: 1.75rem;
+  }
+
+  /* Mobile: FAB */
+  .toc-fab {
+    display: none;
+  }
+  .toc-overlay {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .toc { display: none; }
+    .toc-fab {
+      display: flex;
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 50;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-ink);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .toc-overlay {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 180;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .toc-overlay.on { pointer-events: auto; opacity: 1; }
+    .toc-overlay-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(26,26,46,0.3);
+    }
+    .toc-overlay-box {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 60vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      padding: 1.5rem 1.5rem 2.5rem;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+    }
+  }
+</style>

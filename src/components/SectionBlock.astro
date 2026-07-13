@@ -1,0 +1,120 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Section } from '../data/sections';
+import ArticleGridCard from './ArticleGridCard.astro';
+
+type BlogPost = CollectionEntry<'blog'>;
+
+interface Props {
+  section: Section;
+  posts: BlogPost[];
+  index: number;
+}
+
+const { section, posts, index } = Astro.props;
+const num = String(index + 1).padStart(2, '0');
+const isEven = index % 2 === 1;
+const cards: (BlogPost | null)[] = [
+  ...posts.slice(0, 4),
+  ...Array(Math.max(0, 4 - posts.length)).fill(null),
+];
+---
+
+<section
+  class="sb"
+  data-section={index}
+  style="--color: ${section.color}; --bg: ${isEven ? '#ffffff' : '#faf8f5'}; --z: ${index + 1};"
+>
+  <div class="sb-inner">
+    <header class="sb-head">
+      <span class="sb-num">{num}</span>
+      <h2 class="sb-title">{section.name}</h2>
+      <p class="sb-desc">{section.description}</p>
+    </header>
+    <div class="sb-grid">
+      {cards.map((card, j) => (
+        <div style={`transition-delay: ${j * 0.06}s`} class="reveal">
+          {card ? (
+            <ArticleGridCard post={card} sectionColor={section.color} />
+          ) : (
+            <ArticleGridCard sectionColor={section.color} placeholder="即将上线" />
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .sb {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 600px;
+    z-index: var(--z);
+    background: var(--bg);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .sb-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+  .sb-head {
+    text-align: left;
+  }
+  .sb-num {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: clamp(4.5rem, 8vw, 6.5rem);
+    font-weight: 700;
+    color: var(--color);
+    opacity: 0.14;
+    line-height: 1;
+    margin-bottom: -0.25rem;
+  }
+  .sb-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.01em;
+  }
+  .sb-desc {
+    font-size: 0.9rem;
+    color: var(--color-ink-light);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .sb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 800px) {
+    .sb {
+      position: relative;
+      top: auto;
+      height: auto;
+      min-height: auto;
+    }
+    .sb-inner {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 4rem 1.25rem;
+    }
+    .sb-head {
+      text-align: center;
+    }
+  }
+</style>

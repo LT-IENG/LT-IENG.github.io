@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SearchFilter from '../../components/SearchFilter.astro';
+import BlogList from '../../components/BlogList.astro';
+import { getAllPosts } from '../../utils/blog';
+
+const posts = await getAllPosts();
+---
+
+<BaseLayout title="博客">
+  <div class="page-header">
+    <h1 class="page-title">博客</h1>
+    <p class="page-desc">所有文章</p>
+  </div>
+  <SearchFilter />
+  <BlogList posts={posts} />
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 6rem 2rem 2rem;
+  }
+  .page-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+  }
+  .page-desc {
+    color: var(--color-ink-light);
+    font-size: 0.95rem;
+  }
+</style>
+
+<script>
+  // Client-side search & filter
+  const searchInput = document.getElementById('searchInput') as HTMLInputElement | null;
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  let activeSection = 'all';
+
+  function filterPosts() {
+    const query = searchInput?.value.toLowerCase() ?? '';
+    const cards = document.querySelectorAll('.blog-card') as NodeListOf<HTMLElement>;
+
+    cards.forEach((card) => {
+      const tagEl = card.querySelector('.section-tag');
+      const section = tagEl?.textContent?.trim() ?? '';
+      const title = card.querySelector('.blog-card-title')?.textContent?.toLowerCase() ?? '';
+      const desc = card.querySelector('.blog-card-desc')?.textContent?.toLowerCase() ?? '';
+
+      const matchesSearch = !query || title.includes(query) || desc.includes(query);
+      const matchesSection = activeSection === 'all' || section === activeSection;
+
+      card.style.display = matchesSearch && matchesSection ? '' : 'none';
+    });
+  }
+
+  searchInput?.addEventListener('input', filterPosts);
+
+  filterTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      filterTabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeSection = tab.getAttribute('data-section') ?? 'all';
+      filterPosts();
+    });
+  });
+</script>

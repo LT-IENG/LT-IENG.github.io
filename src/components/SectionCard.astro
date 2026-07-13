@@ -1,0 +1,105 @@
+---
+import type { Section } from '../data/sections';
+
+const { section, count, index } = Astro.props;
+---
+
+<a
+  href={`/section/${encodeURIComponent(section.id)}`}
+  class="section-card reveal"
+  style={`--section-color: ${section.color}; transition-delay: ${index * 0.1}s;`}
+>
+  <div class="section-card-accent"></div>
+  <div class="section-card-content">
+    <span class="section-card-emoji">{section.emoji}</span>
+    <div>
+      <h3 class="section-card-name">{section.name}</h3>
+      <p class="section-card-desc">{section.description}</p>
+    </div>
+  </div>
+  <div class="section-card-footer">
+    {count > 0 ? (
+      <span class="section-count">{count} 篇文章</span>
+    ) : (
+      <span class="section-count-empty">即将上线</span>
+    )}
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  </div>
+</a>
+
+<style>
+  .section-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  .section-card:hover .section-card-accent {
+    opacity: 1;
+    height: 5px;
+  }
+  .section-card-accent {
+    height: 4px;
+    background: var(--section-color);
+    transition: height 0.25s ease, opacity 0.25s ease;
+    opacity: 0.7;
+  }
+  .section-card-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem 1.5rem 0.75rem;
+  }
+  .section-card-emoji {
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .section-card-name {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--color-ink);
+  }
+  .section-card-desc {
+    font-size: 0.85rem;
+    color: var(--color-ink-light);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .section-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem 1.25rem;
+    font-size: 0.82rem;
+  }
+  .section-count {
+    color: var(--section-color);
+    font-weight: 500;
+  }
+  .section-count-empty {
+    color: var(--color-ink-light);
+    font-style: italic;
+    opacity: 0.7;
+  }
+  .section-card-footer svg {
+    color: var(--color-ink-light);
+    transition: transform 0.2s, color 0.2s;
+  }
+  .section-card:hover .section-card-footer svg {
+    transform: translateX(4px);
+    color: var(--section-color);
+  }
+</style>

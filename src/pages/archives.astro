@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPostsByYear } from '../utils/blog';
+
+const postsByYear = await getPostsByYear();
+const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a));
+
+function getSectionColor(section: string): string {
+  const map: Record<string, string> = {
+    '项目作品': '#c4a882',
+    '技术探索': '#5b7a8c',
+    '阅读笔记': '#b8937a',
+    '闲隅拾笺': '#8b9d83',
+  };
+  return map[section] || '#6b7280';
+}
+---
+
+<BaseLayout title="时间轴" description="文章时间轴">
+  <div class="archives-page">
+    <div class="archives-header">
+      <h1 class="archives-title">时间轴</h1>
+      <p class="archives-desc">{Object.values(postsByYear).flat().length} 篇文章</p>
+    </div>
+
+    <div class="timeline">
+      {years.map((year) => (
+        <div class="timeline-year">
+          <div class="timeline-year-label">{year}</div>
+          <div class="timeline-posts">
+            {postsByYear[year].map((post) => (
+              <a href={`/blog/${post.slug}`} class="timeline-post">
+                <time class="timeline-date">{post.data.date.toISOString().slice(5, 10)}</time>
+                <span class="section-tag" style={`background: ${getSectionColor(post.data.section)}18; color: ${getSectionColor(post.data.section)}`}>
+                  {post.data.section}
+                </span>
+                <span class="timeline-post-title">{post.data.title}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .archives-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+  }
+  .archives-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .archives-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    color: var(--color-ink);
+    margin-bottom: 0.25rem;
+  }
+  .archives-desc {
+    color: var(--color-ink-light);
+    font-size: 0.9rem;
+  }
+  .timeline {
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--color-gold), var(--color-gold-light), transparent);
+  }
+  .timeline-year {
+    margin-bottom: 2.5rem;
+  }
+  .timeline-year-label {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    position: relative;
+  }
+  .timeline-year-label::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-gold);
+  }
+  .timeline-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-left: 2rem;
+  }
+  .timeline-post {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .timeline-post:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  .timeline-date {
+    font-size: 0.78rem;
+    color: var(--color-ink-light);
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+  .timeline-post-title {
+    font-size: 0.95rem;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 640px) {
+    .timeline-post {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .timeline-post-title {
+      white-space: normal;
+      width: 100%;
+    }
+  }
+</style>

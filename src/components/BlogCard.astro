@@ -1,0 +1,134 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+const { post } = Astro.props;
+const { data } = post;
+
+function getSectionColor(section: string): string {
+  const map: Record<string, string> = {
+    '项目作品': '#c4a882',
+    '技术探索': '#5b7a8c',
+    '阅读笔记': '#b8937a',
+    '闲隅拾笺': '#8b9d83',
+  };
+  return map[section] || '#6b7280';
+}
+---
+
+<a href={`/blog/${post.slug}`} class="blog-card card">
+  <div class="blog-card-cover">
+    {data.cover ? (
+      <img src={data.cover} alt={data.title} loading="lazy" />
+    ) : (
+      <div class="blog-card-cover-fallback" style={`background: linear-gradient(135deg, ${getSectionColor(data.section)}35, ${getSectionColor(data.section)}10)`}>
+        <span class="blog-card-cover-fallback-title">{data.title}</span>
+      </div>
+    )}
+  </div>
+  <div class="blog-card-body">
+    <span class="section-tag" style={`background: ${getSectionColor(data.section)}18; color: ${getSectionColor(data.section)}`}>
+      {data.section}
+    </span>
+    <h3 class="blog-card-title">{data.title}</h3>
+    {data.description && <p class="blog-card-desc">{data.description}</p>}
+    <div class="blog-card-meta">
+      <time>{data.date.toISOString().slice(0, 10)}</time>
+      {data.tags.length > 0 && (
+        <span class="blog-card-tags">
+          {data.tags.slice(0, 3).map((t: string) => <span class="tag-dot">{t}</span>)}
+        </span>
+      )}
+    </div>
+  </div>
+</a>
+
+<style>
+  .blog-card {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+  }
+  .blog-card-cover {
+    height: 100%;
+    min-height: 180px;
+    background: var(--color-warm-white);
+  }
+  .blog-card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .blog-card-cover-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .blog-card-cover-fallback-title {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(26, 26, 46, 0.45);
+    text-align: center;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .blog-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .blog-card-title {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0.5rem 0 0.25rem;
+    line-height: 1.4;
+  }
+  .blog-card-desc {
+    font-size: 0.88rem;
+    color: var(--color-ink-light);
+    margin: 0.25rem 0 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .blog-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    color: var(--color-ink-light);
+  }
+  .blog-card-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .tag-dot {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 100px;
+    background: var(--color-warm-white);
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 640px) {
+    .blog-card {
+      grid-template-columns: 1fr;
+    }
+    .blog-card-cover {
+      height: 200px;
+      min-height: auto;
+    }
+  }
+</style>

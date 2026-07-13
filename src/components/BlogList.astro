@@ -1,0 +1,43 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BlogCard from './BlogCard.astro';
+
+const { posts, title = '所有文章' } = Astro.props;
+---
+
+<section class="blog-list-section">
+  <h2 class="blog-list-title">{title}</h2>
+  {posts.length === 0 ? (
+    <p class="blog-list-empty">暂无文章</p>
+  ) : (
+    <div class="blog-list-grid">
+      {posts.map((post: CollectionEntry<'blog'>) => (
+        <BlogCard post={post} />
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  .blog-list-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .blog-list-title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .blog-list-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .blog-list-empty {
+    text-align: center;
+    color: var(--color-ink-light);
+    padding: 3rem;
+    font-style: italic;
+  }
+</style>

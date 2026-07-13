@@ -1,0 +1,138 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post?: CollectionEntry<'blog'>;
+  sectionColor: string;
+  placeholder?: string;
+}
+
+const { post, sectionColor, placeholder } = Astro.props;
+---
+
+{post ? (
+  <a href={`/blog/${post.slug}`} class="grid-card">
+    <div class="grid-card-image">
+      {post.data.cover ? (
+        <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+      ) : (
+        <div class="grid-card-image-fallback" style={`background: linear-gradient(135deg, ${sectionColor}35, ${sectionColor}12)`}>
+          <span class="grid-card-image-fallback-title">{post.data.title}</span>
+        </div>
+      )}
+    </div>
+    <div class="grid-card-body">
+      <span class="grid-card-tag" style={`color: ${sectionColor}`}>{post.data.section}</span>
+      <h4 class="grid-card-title">{post.data.title}</h4>
+      <time class="grid-card-date">{post.data.date.toISOString().slice(0, 10)}</time>
+    </div>
+  </a>
+) : (
+  <div class="grid-card grid-card-placeholder">
+    <div class="grid-card-image grid-card-image-empty"></div>
+    <div class="grid-card-body">
+      <span class="grid-card-tag" style={`color: ${sectionColor}`}>{placeholder || '即将上线'}</span>
+      <h4 class="grid-card-title grid-card-title-empty">敬请期待</h4>
+    </div>
+  </div>
+)}
+
+<style>
+  .grid-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .grid-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+  }
+  .grid-card-placeholder {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .grid-card-placeholder:hover {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .grid-card-image {
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: var(--color-warm-white);
+    flex-shrink: 0;
+  }
+  .grid-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .grid-card:hover .grid-card-image img {
+    transform: scale(1.04);
+  }
+  .grid-card-image-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+  }
+  .grid-card-image-fallback-title {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(26, 26, 46, 0.45);
+    text-align: center;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .grid-card-image-empty {
+    background: linear-gradient(135deg, #f5f2ed, #eee9e0);
+  }
+  .grid-card-body {
+    padding: 1rem 1.25rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .grid-card-tag {
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .grid-card-title {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0.35rem 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+  }
+  .grid-card-title-empty {
+    color: var(--color-ink-light);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .grid-card-date {
+    font-size: 0.75rem;
+    color: var(--color-ink-light);
+    margin-top: auto;
+  }
+</style>

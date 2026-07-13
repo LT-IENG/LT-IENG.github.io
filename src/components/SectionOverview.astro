@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import { sections } from '../data/sections';
+import SectionCard from './SectionCard.astro';
+
+const allPosts = await getCollection('blog');
+---
+
+<section class="sections-section" id="sections">
+  <div class="sections-inner">
+    <div class="sections-header reveal">
+      <h2 class="sections-title">探索板块</h2>
+      <p class="sections-desc">按主题分类浏览所有文章</p>
+    </div>
+    <div class="sections-grid">
+      {sections.map((section, i) => {
+        const count = allPosts.filter((p) => p.data.section === section.id).length;
+        return <SectionCard section={section} count={count} index={i} />;
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .sections-section {
+    padding: 6rem 2rem;
+    background: var(--color-cream);
+  }
+  .sections-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .sections-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .sections-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+  }
+  .sections-desc {
+    color: var(--color-ink-light);
+    font-size: 0.95rem;
+  }
+  .sections-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  @media (max-width: 640px) {
+    .sections-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

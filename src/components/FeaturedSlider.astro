@@ -1,0 +1,74 @@
+---
+import { getCollection } from 'astro:content';
+import FeaturedCard from './FeaturedCard.astro';
+
+const allPosts = await getCollection('blog');
+const featured = allPosts
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const posts = featured.slice(0, 6);
+const padPosts = posts.length >= 4
+  ? posts
+  : [...posts, ...posts, ...posts].slice(0, 6);
+---
+
+<div class="slider" id="featuredSlider">
+  <div class="slider-track" id="sliderTrack">
+    <div class="slider-set" id="sliderSet">
+      {padPosts.map((post) => (
+        <FeaturedCard post={post} />
+      ))}
+    </div>
+    <div class="slider-set">
+      {padPosts.map((post) => (
+        <FeaturedCard post={post} />
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .slider {
+    width: 100%;
+    overflow: hidden;
+    padding: 0.5rem 0 1rem;
+  }
+  .slider-track {
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    will-change: transform;
+  }
+  .slider-set {
+    display: flex;
+    gap: 1.25rem;
+    flex-shrink: 0;
+  }
+  @keyframes slide {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(calc(-1 * var(--distance))); }
+  }
+</style>
+
+<script>
+  const track = document.getElementById('sliderTrack');
+  const set = document.getElementById('sliderSet');
+  if (track && set) {
+    function measure() {
+      const setW = set.offsetWidth;
+      const gap = parseFloat(getComputedStyle(track).gap) || 20;
+      track.style.setProperty('--distance', (setW + gap) + 'px');
+    }
+    measure();
+    window.addEventListener('resize', measure);
+
+    track.style.animation = 'slide 40s linear infinite';
+    track.addEventListener('mouseenter', () => {
+      track.style.animationPlayState = 'paused';
+    });
+    track.addEventListener('mouseleave', () => {
+      track.style.animationPlayState = 'running';
+    });
+  }
+</script>

@@ -1,0 +1,147 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+const { post } = Astro.props;
+const { data } = post;
+
+function getSectionColor(section: string): string {
+  const map: Record<string, string> = {
+    '项目作品': '#c4a882',
+    '技术探索': '#5b7a8c',
+    '阅读笔记': '#b8937a',
+    '闲隅拾笺': '#8b9d83',
+  };
+  return map[section] || '#6b7280';
+}
+---
+
+<a href={`/blog/${post.slug}`} class="fcard">
+  <div class="fcard-cover">
+    {data.cover ? (
+      <img src={data.cover} alt={data.title} loading="lazy" />
+    ) : (
+      <div class="fcard-cover-ph" style={`background: linear-gradient(135deg, ${getSectionColor(data.section)}40, ${getSectionColor(data.section)}18)`}>
+        <span class="fcard-cover-ph-title">{data.title}</span>
+      </div>
+    )}
+    <div class="fcard-cover-overlay"></div>
+  </div>
+  <div class="fcard-body">
+    <span class="fcard-tag" style={`color: ${getSectionColor(data.section)}`}>
+      <span class="fcard-tag-dot" style={`background: ${getSectionColor(data.section)}`}></span>
+      {data.section}
+    </span>
+    <h3 class="fcard-title">{data.title}</h3>
+    <time class="fcard-date">{data.date.toISOString().slice(0, 10)}</time>
+  </div>
+</a>
+
+<style>
+  .fcard {
+    display: block;
+    width: 300px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2),
+                box-shadow 0.35s ease;
+  }
+  .fcard:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+  }
+  .fcard-cover {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    overflow: hidden;
+    background: #f0ece6;
+  }
+  .fcard-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .fcard:hover .fcard-cover img {
+    transform: scale(1.06);
+  }
+  .fcard-cover-ph {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+  }
+  .fcard-cover-ph-title {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(26, 26, 46, 0.5);
+    text-align: center;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .fcard-cover-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+    pointer-events: none;
+  }
+  .fcard-body {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+  .fcard-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .fcard-tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .fcard-title {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0.4rem 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-ink);
+  }
+  .fcard-date {
+    font-size: 0.75rem;
+    color: var(--color-ink-light);
+  }
+
+  @media (max-width: 640px) {
+    .fcard {
+      width: 250px;
+    }
+    .fcard-cover {
+      height: 155px;
+    }
+  }
+</style>

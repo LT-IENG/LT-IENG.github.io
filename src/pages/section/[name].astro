@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogList from '../../components/BlogList.astro';
+import { sections, getSectionById } from '../../data/sections';
+
+export async function getStaticPaths() {
+  return sections.map((s) => ({
+    params: { name: s.id },
+  }));
+}
+
+const { name } = Astro.params;
+const section = getSectionById(name);
+
+if (!section) {
+  return Astro.redirect('/404');
+}
+
+const allPosts = await getCollection('blog');
+const posts = allPosts
+  .filter((p) => p.data.section === name)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title={`${section.name} — 板块`} description={section.description}>
+  <div class="page-header">
+    <a href="/" class="back-link">← 返回首页</a>
+    <h1 class="page-title" style={`color: ${section.color}`}>{section.name}</h1>
+    <p class="page-desc">{section.description}</p>
+  </div>
+  <BlogList posts={posts} title="" />
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 6rem 2rem 2rem;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--color-ink-light);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+  }
+  .back-link:hover {
+    color: var(--color-gold);
+  }
+  .page-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    margin-bottom: 0.5rem;
+  }
+  .page-desc {
+    color: var(--color-ink-light);
+    font-size: 1rem;
+  }
+</style>

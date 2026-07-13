@@ -1,0 +1,103 @@
+---
+const pages = [
+  { label: '首页', href: '/' },
+  { label: '博客', href: '/blog' },
+  { label: '时间轴', href: '/archives' },
+  { label: '关于', href: '/about' },
+];
+---
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">LT-IENG</a>
+    <ul class="nav-links">
+      {pages.map((p) => (
+        <li>
+          <a href={p.href} class="nav-link link-underline">{p.label}</a>
+        </li>
+      ))}
+      <li>
+        <button class="nav-search-btn" id="searchTrigger" aria-label="搜索">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 0 2rem;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  .nav.scrolled {
+    background: rgba(250, 248, 245, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
+  .nav-logo {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-link {
+    color: var(--color-ink-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-link:hover {
+    color: var(--color-ink);
+  }
+  .nav-search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-ink-light);
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav-search-btn:hover {
+    color: var(--color-ink);
+    background: rgba(0, 0, 0, 0.05);
+  }
+</style>
+
+<script>
+  const nav = document.getElementById('nav');
+  if (nav) {
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+  }
+</script>
