@@ -111,7 +111,7 @@ a.link-underline:hover::after {
 
 /* Prose overrides for blog posts */
 .prose {
-  max-width: 720px;
+  max-width: min(720px, 100%);
   margin: 0 auto;
   font-size: 1.05rem;
   line-height: 1.85;
