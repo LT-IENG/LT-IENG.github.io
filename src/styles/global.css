@@ -135,6 +135,25 @@ a.link-underline:hover::after {
   border-radius: 8px;
 }
 
+/* Responsive overflow guards: tables, formulas, embeds never break mobile layout */
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.prose iframe,
+.prose video,
+.prose embed {
+  max-width: 100%;
+}
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.5rem 0;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
