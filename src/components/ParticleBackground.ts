@@ -3,6 +3,11 @@
  *
  * Particles drift slowly. Nearby particles are connected by translucent lines.
  * The mouse attracts particles within a radius, creating an interactive "pull" effect.
+ *
+ * Performance optimizations:
+ * - Fewer particles on small screens.
+ * - Animation pauses when the canvas scrolls out of view (IntersectionObserver).
+ * - Respects `prefers-reduced-motion` by rendering a static frame.
  */
 export class ParticleNetwork {
   private canvas: HTMLCanvasElement;
@@ -11,10 +16,13 @@ export class ParticleNetwork {
   private mouse = { x: -1000, y: -1000 };
   private animId = 0;
   private resizeObserver: ResizeObserver;
+  private intersectionObserver: IntersectionObserver | null = null;
+  private isVisible = true;
 
   private readonly maxParticles: number;
   private readonly connectionDist = 130;
   private readonly mouseRadius = 180;
+  private readonly reducedMotion: boolean;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -23,7 +31,13 @@ export class ParticleNetwork {
     if (!ctx) throw new Error('Canvas 2D context not available');
     this.ctx = ctx;
 
-    this.maxParticles = window.innerWidth < 768 ? 50 : 120;
+    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth < 768;
+    // Reduced motion / mobile → fewer particles to save battery & CPU
+    this.maxParticles = this.reducedMotion
+      ? (isMobile ? 18 : 40)
+      : (isMobile ? 50 : 120);
+
     this.init();
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -34,7 +48,32 @@ export class ParticleNetwork {
     this.resize();
     this.createParticles();
     this.bindEvents();
-    this.animate();
+    this.setupVisibility();
+
+    if (this.reducedMotion) {
+      // Render a single static frame, no animation loop
+      this.drawFrame();
+    } else {
+      this.animate();
+    }
+  }
+
+  private setupVisibility() {
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        const visible = entry ? entry.isIntersecting : true;
+        this.isVisible = visible;
+        if (visible && !this.reducedMotion && !this.animId) {
+          this.animate();
+        } else if (!visible && this.animId) {
+          cancelAnimationFrame(this.animId);
+          this.animId = 0;
+        }
+      },
+      { threshold: 0 }
+    );
+    this.intersectionObserver.observe(this.canvas);
   }
 
   private resize() {
@@ -70,18 +109,16 @@ export class ParticleNetwork {
     });
   }
 
-  private animate() {
+  /** Draw a single static frame (used for reduced-motion users). */
+  private drawFrame() {
     const w = this.canvas.width / (window.devicePixelRatio || 1);
     const h = this.canvas.height / (window.devicePixelRatio || 1);
-
     this.ctx.clearRect(0, 0, w, h);
+    for (const p of this.particles) p.draw(this.ctx);
+    this.drawConnections();
+  }
 
-    // Update & draw particles
-    for (const p of this.particles) {
-      p.update(w, h, this.mouse, this.mouseRadius);
-    }
-
-    // Draw connections
+  private drawConnections() {
     for (let i = 0; i < this.particles.length; i++) {
       for (let j = i + 1; j < this.particles.length; j++) {
         const dx = this.particles[i].x - this.particles[j].x;
@@ -99,6 +136,26 @@ export class ParticleNetwork {
         }
       }
     }
+  }
+
+  private animate() {
+    if (!this.isVisible) {
+      this.animId = 0;
+      return;
+    }
+
+    const w = this.canvas.width / (window.devicePixelRatio || 1);
+    const h = this.canvas.height / (window.devicePixelRatio || 1);
+
+    this.ctx.clearRect(0, 0, w, h);
+
+    // Update & draw particles
+    for (const p of this.particles) {
+      p.update(w, h, this.mouse, this.mouseRadius);
+    }
+
+    // Draw connections
+    this.drawConnections();
 
     // Draw particles on top
     for (const p of this.particles) {
@@ -110,7 +167,9 @@ export class ParticleNetwork {
 
   destroy() {
     cancelAnimationFrame(this.animId);
+    this.animId = 0;
     this.resizeObserver.disconnect();
+    this.intersectionObserver?.disconnect();
   }
 }
 

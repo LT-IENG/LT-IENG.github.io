@@ -203,11 +203,31 @@ const readingTime = Math.max(1, Math.ceil(post.body.split(/\s+/).length / 300));
   }
 
   @media (max-width: 768px) {
+    .post {
+      padding: 0 1rem 3rem;
+    }
+    .post-header {
+      padding-top: 2rem;
+    }
+    .post-banner {
+      max-height: 240px;
+      margin-bottom: 1.5rem;
+    }
+    .post-banner img {
+      height: 240px;
+    }
     .post-layout {
       grid-template-columns: 1fr;
     }
     .post-sidebar {
       display: none;
+    }
+    .post-pagination {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .post-next {
+      text-align: left;
     }
   }
 </style>

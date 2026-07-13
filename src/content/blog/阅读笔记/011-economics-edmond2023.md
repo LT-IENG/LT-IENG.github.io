@@ -4,7 +4,7 @@ date: 2025-12-04
 updated: 2025-12-04
 section: 阅读笔记
 tags: [复现, 公式推导, 经济学]
-featured: true
+# featured: true
 pinned: true
 cover: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/Edmond-2023-%E5%B0%81%E9%9D%A2.png
 hero: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/Edmond-2023-%E5%B0%81%E9%9D%A2.png

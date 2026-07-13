@@ -147,7 +147,7 @@ const allPosts = await getCollection('blog');
     gap: 1rem;
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 768px) {
     .stack-scene { height: auto; }
     .stack-viewport {
       position: relative;
@@ -159,13 +159,16 @@ const allPosts = await getCollection('blog');
       position: relative;
       height: auto;
       min-height: auto;
-      transform: none !important;
-      opacity: 1 !important;
+      transform: none;
+      opacity: 1;
     }
     .stack-card-inner {
       grid-template-columns: 1fr;
       gap: 2rem;
       padding: 4rem 1.25rem;
+    }
+    .sc-grid {
+      grid-template-columns: 1fr;
     }
     .sc-head { text-align: center; }
   }
@@ -176,6 +179,9 @@ const allPosts = await getCollection('blog');
     var scene = document.getElementById('stackScene');
     var cards = document.querySelectorAll('.stack-card');
     if (!scene || cards.length === 0) return;
+
+    // 滚动驱动动画仅在桌面端运行；移动端使用静态堆叠布局，避免无谓的 scroll 计算
+    if (!window.matchMedia('(min-width: 769px)').matches) return;
 
     // Wider spacing: 15%, 35%, 55%, 75% → each card has 20% of scroll to shine
     var thresholds = [0.15, 0.35, 0.55, 0.75];

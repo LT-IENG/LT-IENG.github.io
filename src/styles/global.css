@@ -130,6 +130,8 @@ a.link-underline:hover::after {
   overflow-x: auto;
 }
 .prose img {
+  max-width: 100%;
+  height: auto;
   border-radius: 8px;
 }
 

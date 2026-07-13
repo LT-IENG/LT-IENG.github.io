@@ -10,7 +10,7 @@ const pages = [
 <nav class="nav" id="nav">
   <div class="nav-inner">
     <a href="/" class="nav-logo">LT-IENG</a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
       {pages.map((p) => (
         <li>
           <a href={p.href} class="nav-link link-underline">{p.label}</a>
@@ -25,6 +25,11 @@ const pages = [
         </button>
       </li>
     </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
 </nav>
 
@@ -91,13 +96,111 @@ const pages = [
     color: var(--color-ink);
     background: rgba(0, 0, 0, 0.05);
   }
+
+  /* Hamburger toggle — hidden on desktop */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 38px;
+    height: 38px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    align-items: center;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--color-ink);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Mobile navigation */
+  @media (max-width: 768px) {
+    .nav {
+      padding: 0 1rem;
+    }
+    .nav-toggle {
+      display: flex;
+    }
+    .nav-toggle.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .nav-toggle.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .nav-toggle.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    .nav-links {
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      gap: 0;
+      align-items: stretch;
+      background: rgba(250, 248, 245, 0.98);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      max-height: 0;
+      overflow: hidden;
+      padding: 0;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .nav-links.open {
+      max-height: 360px;
+      padding: 0.5rem 0 1rem;
+    }
+    .nav-links li {
+      width: 100%;
+      text-align: center;
+    }
+    .nav-link {
+      display: block;
+      padding: 0.85rem 1rem;
+      font-size: 1rem;
+    }
+    .nav-search-btn {
+      padding: 0.85rem;
+    }
+  }
 </style>
 
 <script>
   const nav = document.getElementById('nav');
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+
   if (nav) {
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+  }
+
+  if (toggle && links) {
+    const closeMenu = () => {
+      links.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('open');
+      toggle.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+
+    // Close menu after navigating
+    links.querySelectorAll('a').forEach((a) => {
+      a.addEventListener('click', closeMenu);
     });
   }
 </script>

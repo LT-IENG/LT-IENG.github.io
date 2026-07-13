@@ -64,11 +64,26 @@ const padPosts = posts.length >= 4
     window.addEventListener('resize', measure);
 
     track.style.animation = 'slide 40s linear infinite';
+
+    // Hover pause (desktop)
     track.addEventListener('mouseenter', () => {
       track.style.animationPlayState = 'paused';
     });
     track.addEventListener('mouseleave', () => {
       track.style.animationPlayState = 'running';
     });
+
+    // Touch pause (mobile): pause while interacting, resume after 3s idle
+    let resumeTimer: number | undefined;
+    function pauseAndDelayResume() {
+      track.style.animationPlayState = 'paused';
+      window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(() => {
+        track.style.animationPlayState = 'running';
+      }, 3000);
+    }
+    track.addEventListener('touchstart', pauseAndDelayResume, { passive: true });
+    track.addEventListener('touchmove', pauseAndDelayResume, { passive: true });
+    track.addEventListener('touchend', pauseAndDelayResume, { passive: true });
   }
 </script>
