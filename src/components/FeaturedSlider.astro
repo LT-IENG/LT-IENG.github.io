@@ -20,7 +20,7 @@ const padPosts = posts.length >= 4
         <FeaturedCard post={post} />
       ))}
     </div>
-    <div class="slider-set">
+    <div class="slider-set" aria-hidden="true">
       {padPosts.map((post) => (
         <FeaturedCard post={post} />
       ))}
@@ -39,15 +39,22 @@ const padPosts = posts.length >= 4
     gap: 1.25rem;
     width: max-content;
     will-change: transform;
+    cursor: grab;
+    /* Let the browser handle vertical page scroll; we own horizontal drags */
+    touch-action: pan-y;
+  }
+  .slider-track.dragging {
+    cursor: grabbing;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .slider-set {
     display: flex;
     gap: 1.25rem;
     flex-shrink: 0;
   }
-  @keyframes slide {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(calc(-1 * var(--distance))); }
+  @media (prefers-reduced-motion: reduce) {
+    .slider-track { cursor: default; }
   }
 </style>
 
@@ -55,35 +62,93 @@ const padPosts = posts.length >= 4
   const track = document.getElementById('sliderTrack');
   const set = document.getElementById('sliderSet');
   if (track && set) {
+    // State
+    let distance = 0;          // width of one set + gap (loop period)
+    let offset = 0;            // current translateX (negative = scrolled left)
+    let dragging = false;
+    let startX = 0;
+    let baseOffset = 0;
+    let lastDx = 0;            // last drag delta (for click suppression)
+    let paused = false;
+    let resumeTimer: number | undefined;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const speed = reducedMotion ? 0 : 0.4;  // px per frame
+
     function measure() {
       const setW = set.offsetWidth;
       const gap = parseFloat(getComputedStyle(track).gap) || 20;
-      track.style.setProperty('--distance', (setW + gap) + 'px');
+      distance = setW + gap;
+      if (distance <= 0) distance = 1;
     }
     measure();
     window.addEventListener('resize', measure);
 
-    track.style.animation = 'slide 40s linear infinite';
+    // Seamless infinite loop: wrap offset into [-distance, 0)
+    function apply() {
+      if (distance <= 0) return;
+      while (offset <= -distance) offset += distance;
+      while (offset >= 0) offset -= distance;
+      track.style.transform = `translateX(${offset}px)`;
+    }
 
-    // Hover pause (desktop)
+    function tick() {
+      if (!dragging && !paused && speed > 0) {
+        offset -= speed;
+        apply();
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    function pauseAndResume(delay: number) {
+      paused = true;
+      window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(() => { paused = false; }, delay);
+    }
+
+    // Pointer drag — unified mouse / touch / pen
+    track.addEventListener('pointerdown', (e: PointerEvent) => {
+      dragging = true;
+      startX = e.clientX;
+      baseOffset = offset;
+      lastDx = 0;
+      paused = true;
+      window.clearTimeout(resumeTimer);
+      try { track.setPointerCapture(e.pointerId); } catch (_) {}
+      track.classList.add('dragging');
+    });
+    track.addEventListener('pointermove', (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      lastDx = dx;
+      offset = baseOffset + dx;
+      apply();
+    });
+    function endDrag(e: PointerEvent) {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('dragging');
+      try { track.releasePointerCapture(e.pointerId); } catch (_) {}
+      pauseAndResume(2500);
+    }
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+
+    // Suppress click navigation when the user actually dragged (not a tap)
+    track.addEventListener('click', (e: MouseEvent) => {
+      if (Math.abs(lastDx) > 8) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+
+    // Hover pause (desktop) — pause while reading, resume shortly after leave
     track.addEventListener('mouseenter', () => {
-      track.style.animationPlayState = 'paused';
+      if (!dragging) { paused = true; window.clearTimeout(resumeTimer); }
     });
     track.addEventListener('mouseleave', () => {
-      track.style.animationPlayState = 'running';
+      if (!dragging) pauseAndResume(800);
     });
-
-    // Touch pause (mobile): pause while interacting, resume after 3s idle
-    let resumeTimer: number | undefined;
-    function pauseAndDelayResume() {
-      track.style.animationPlayState = 'paused';
-      window.clearTimeout(resumeTimer);
-      resumeTimer = window.setTimeout(() => {
-        track.style.animationPlayState = 'running';
-      }, 3000);
-    }
-    track.addEventListener('touchstart', pauseAndDelayResume, { passive: true });
-    track.addEventListener('touchmove', pauseAndDelayResume, { passive: true });
-    track.addEventListener('touchend', pauseAndDelayResume, { passive: true });
   }
 </script>
