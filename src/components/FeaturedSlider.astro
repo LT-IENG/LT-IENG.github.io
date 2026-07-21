@@ -109,6 +109,8 @@ const padPosts = posts.length >= 4
 
     // Pointer drag — unified mouse / touch / pen
     track.addEventListener('pointerdown', (e: PointerEvent) => {
+      // Only the primary pointer / left mouse button should move the carousel.
+      if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
       dragging = true;
       startX = e.clientX;
       baseOffset = offset;
@@ -134,6 +136,10 @@ const padPosts = posts.length >= 4
     }
     track.addEventListener('pointerup', endDrag);
     track.addEventListener('pointercancel', endDrag);
+
+    // Images and links are draggable by default in desktop browsers. Preventing
+    // that native drag keeps the carousel gesture continuous across card covers.
+    track.addEventListener('dragstart', (e: DragEvent) => e.preventDefault());
 
     // Suppress click navigation when the user actually dragged (not a tap)
     track.addEventListener('click', (e: MouseEvent) => {
