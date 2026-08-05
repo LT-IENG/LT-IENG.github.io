@@ -6,7 +6,7 @@ section: 技术探索
 tags: [复现, 语言类大模型, AI]
 cover: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/GPT2.png
 hero: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/GPT2.png
-featured: true
+featured: false
 pinned: true
 order: 2
 description: 从零开始，逐步实现一个 mini GPT 模型，深入理解 Transformer 架构。
