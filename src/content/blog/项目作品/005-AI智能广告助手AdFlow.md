@@ -6,8 +6,8 @@ section: 项目作品
 tags: [个人项目, AIGC, 多模态, AI]
 cover: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/adflow封面图片.png
 hero: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/adflow封面图片.png
-featured: true
-pinned: true
+featured: false
+pinned: false
 description: 从零搭建 AI 原生广告引擎 AdFlow，多模态内容生成与智能投放。
 ---
 ---
