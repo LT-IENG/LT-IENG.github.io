@@ -69,6 +69,7 @@ const padPosts = posts.length >= 4
     let startX = 0;
     let baseOffset = 0;
     let lastDx = 0;            // last drag delta (for click suppression)
+    let captured = false;     // pointer captured only during real drag (not tap)
     let paused = false;
     let resumeTimer: number | undefined;
 
@@ -115,15 +116,21 @@ const padPosts = posts.length >= 4
       startX = e.clientX;
       baseOffset = offset;
       lastDx = 0;
+      captured = false;
       paused = true;
       window.clearTimeout(resumeTimer);
-      try { track.setPointerCapture(e.pointerId); } catch (_) {}
       track.classList.add('dragging');
     });
     track.addEventListener('pointermove', (e: PointerEvent) => {
       if (!dragging) return;
       const dx = e.clientX - startX;
       lastDx = dx;
+      // Only capture the pointer after confirming real drag intent.
+      // Deferring capture keeps taps/quick clicks on card links working.
+      if (!captured && Math.abs(dx) > 5) {
+        try { track.setPointerCapture(e.pointerId); } catch (_) {}
+        captured = true;
+      }
       offset = baseOffset + dx;
       apply();
     });
@@ -131,7 +138,10 @@ const padPosts = posts.length >= 4
       if (!dragging) return;
       dragging = false;
       track.classList.remove('dragging');
-      try { track.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (captured) {
+        try { track.releasePointerCapture(e.pointerId); } catch (_) {}
+        captured = false;
+      }
       pauseAndResume(2500);
     }
     track.addEventListener('pointerup', endDrag);
