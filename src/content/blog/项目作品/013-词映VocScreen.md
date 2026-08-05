@@ -6,8 +6,8 @@ section: 项目作品
 tags: [个人项目, 影视, 英语学习]
 cover: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/%E9%A1%B9%E7%9B%AE%E4%BD%9C%E5%93%81/013-vocscreen-%E5%B0%81%E9%9D%A22.png
 hero: https://lt-ieng-1414173792.cos.ap-guangzhou.myqcloud.com/image/%E9%A1%B9%E7%9B%AE%E4%BD%9C%E5%93%81/013-vocscreen-%E5%B0%81%E9%9D%A22.png
-featured: false
-pinned: false
+featured: true
+pinned: true
 description: 区别于原有产品，将「看剧」和「学单词」更巧妙地融为一体，让英语学习变得自然、无痛。
 ---
 
